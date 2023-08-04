@@ -1,2 +1,2 @@
 # linux-workspace
-Manjaro
+Debian 12 bookworm
