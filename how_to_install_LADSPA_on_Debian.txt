@@ -1,0 +1,32 @@
+LADSPA Noise Suppressor for Voice on Debian, for Kdenlive
+
+as of 24 May 2023
+Kent West - kent.west@(that .com that swore to not be evil)
+
+    The "librnnoise_ladspa.so" shared library is not in Debian's "/usr/lib/ladspa" path, so there is no "LADSPA Noise Suppressor for Voice" plugin within Debian's Kdenlive. Arg. The plugin does not seem to be available in Debian, so we'll compile it from source.
+    Go to github.com and search for "noise-suppressor-for-voice" (by werman). Click on the green "Code" pull-down menu, and select "Download zip". Download it to your "~/Downloads" folder.
+    Go to your "~Downloads" folder, and "$ unzip "noise-suppressor-for-voice-master.zip" file (you may want to first move it into a "temp" directory, etc, to keep it separate from other files in your "~/Downloads" folder).
+    cd into the newly-created "noise-suppressor-for-voice-master" directory.
+    Run "cmake -Bbuild-x64 -H. -GNinja -DCMAKE_BUILD_TYPE=Release".
+        If "cmake" is not found, you may need to "$ sudo apt install cmake".
+        If "Ninja" is not found, "$ sudo apt install ninja-build".
+        If "PkgConfig" is not found, "$ sudo apt install pkg-config".
+        If juceaide fails to build, look through the error messages for clues. It failed for me.
+            When I looked through the generated messages, I found a line that said, "fatal error: ft2build.h: No such file or directory". I went to debian.org and searched the Packages for "ft2build.h", and found it in "libfreetype-dev", so I did a "$ sudo apt install libfreetype-dev".
+            Re-running "cmake -Bbuild-x64 -H. -GNinja -DCMAKE_BUILD_TYPE=Release", juceaide still failed to build. This time the error was, "fatal error: X11/Xlib.h: No such file or directory". So I searched Debian's packages, and then "$ sudo apt install libx11-dev".
+            Re-running "cmake -Bbuild-x64 -H. -GNinja -DCMAKE_BUILD_TYPE=Release", juceaide still failed to build. This time the error was, "fatal error: X11/extensions/Xrandr.h: No such file or directory". So I searched Debian's packages, and then "$ sudo apt install libxrandr-dev".
+            Re-run "cmake -Bbuild-x64 -H. -GNinja -DCMAKE_BUILD_TYPE=Release". This time, "fatal error: X11/extensions/Xinerama.h: No such file or directory", so "$ sudo apt install libxinerama-dev"
+            Re-run cmake; this time: "Xcursor.h", so "$ sudo apt install libxcursor-dev".
+            Re-run cmake; finally, success, with the message, "Build files have been written to: ~/Downloads/noise-suppressor-for-voice-master/build-x64".
+    But we're not done yet; the library file we need is not yet in "build-x64/bin". So next, "$ ninja -C build-x64". Upon a successful run, there should now be a "librnnoise_ladspa.so" file in "build-x64/bin/ladspa".
+    "$ sudo mv build-x64/bin/ladspa/librnnoise_ladspa.so /usr/lib/ladspa/".
+    "$ sudo chmod 644 /usr/lib/ladspa/librnnoise_ladspa.so" (or match perms of other files here).
+    "$ sudo chown root:root /usr/lib/ladspa/librnnoise_ladspa.so" (or match perms of other files here).
+    Restart Kdenlive if it's running; now you should be able to search Effects for "noise suppressor for voice".
+
+UPDATE:
+
+atsider at reddit/kdenlive writes that steps 6-9 can be replaced with:
+
+"$ sudo ninja -C build_dir install"
+Success!
