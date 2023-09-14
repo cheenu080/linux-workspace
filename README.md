@@ -1,2 +1,2 @@
 # linux-workspace
-Debian 12 bookworm
+essentials | Debian 12 bookworm
